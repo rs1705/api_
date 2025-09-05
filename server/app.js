@@ -7,6 +7,7 @@ const multer = require("multer");
 
 //routes
 const FeedRoutes = require("./routes/feed");
+const AuthRoutes = require("./routes/auth");
 
 const app = express();
 
@@ -42,17 +43,24 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, PATCH"
   );
-  res.setHeader("Access-Control-Allow-Methods", "Content-type, Authorization");
+  res.setHeader("Access-Control-Allow-Headers", "Content-type, Authorization");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200); // respond to preflight immediately
+  }
   next();
 });
 
 app.use("/feed", FeedRoutes);
+app.use("/auth", AuthRoutes);
+
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500; // default
   const message = error.message || "Something went wrong!";
+  const data = error.data;
   res.status(status).json({
     message: message,
+    data: data,
   });
 });
 const MONGODB_URI =
